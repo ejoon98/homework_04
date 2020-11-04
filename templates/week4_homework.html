@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+              integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+              crossorigin="anonymous">
+        <!-- JS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+                integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+                crossorigin="anonymous"></script>
+        <title>주문하기</title>
+        <style>
+        .login-title {
+            color: white;
+            width: 400px;
+            height: 300px;
+            background-image: url(https://ifh.cc/g/SJ4Qvn.png);
+            background-position: center;
+            background-size: cover;
+
+            text-align: center;
+            padding-top: 40px;
+            margin: 10px auto;
+        }
+
+        .buttonstyle{
+            width:100px;
+            padding-top:40px;
+            margin: 10px auto;
+
+        }
+
+        .wrap{
+            text-align: left;
+            margin: 10px auto;
+            width: 700px;
+
+        }
+
+        .radius{
+            border-radius: 7px;
+            height: 28px;
+            weight: 100px;
+        }
+
+
+        .mother{
+            position:relative;
+            width:700px;
+            margin:10px auto;
+        }
+        .absolute{
+            position:absolute;
+            left:100px;
+        }
+
+
+        #number
+        {  width: 11.7em;
+}
+
+
+    </style>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $.ajax({
+                type: "GET", // GET 방식으로 요청한다.
+                url: "https://api.manana.kr/exchange/rate.json",
+                data: {}, // 요청하면서 함께 줄 데이터 (GET 요청시엔 비워두세요)
+                success: function (response) { // 서버에서 준 결과를 response라는 변수에 담음
+                    let exchange = response[1]["rate"];
+                    temphtml = `달러-원 환율 : ${exchange}`;
+                     $("#dollarRate").append(temphtml);
+                }
+            });
+            $("#orders-box").html("");
+            showorder();
+            });
+
+        function order() {
+                let name = $('#order-name').val();
+                var count = document.getElementById("order-count").value
+                let address = $('#order-address').val();
+                let number = $('#order-phone').val();
+                if(name == ''){
+                    alert("이름을 입력하세요!");
+                    return;
+                }if(count == ""){
+                    alert("수량을 선택하세요!");
+                    return;
+                }if(address == ''){
+                    alert("주소를 입력하세요!");
+                    return;
+                } else if(number == ''){
+                    alert("번호를 입력하세요!")
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "/order",//get방식은 url에 데이터를 저장한다.
+                    data: {'name': name, 'count': count, 'address':address, 'number':number},//여기에 넣으면 되겠다. 단,딕셔너리
+                    success: function (response) {
+                        if (response["result"] == "success") {
+                            alert(response["msg"]);
+                            window.location.reload();
+                        }
+                    }
+                })
+            }
+
+           //document html파일이 다 로딩이 끝나면 저걸 해주세요 : 이게 없으면 맨 처음에 켤때 있는 4개짜리를 안보이게 한다. (누를때까지 ㄱㄷ)
+        //잠깐 보이긴 함! 그래도 안보이긴 함.
+
+
+        function showorder() {
+                // 1. 리뷰 목록을 서버에 요청하기
+                // 2. 요청 성공 여부 확인하기
+                // 3. 요청 성공했을 때 리뷰를 올바르게 화면에 나타내기
+                $.ajax({
+                    type: "GET",
+                    url: "/order",
+                    data: {},
+                    success: function (response) {
+                        if (response["result"] == "success") {
+                            //화면에 orders 나타내기
+                            let orders = response["orders"]
+                            //orders는 list형이다.
+                            for (let i=0; i<orders.length; i++){
+                                let order = orders[i];
+
+                                let name = order['name'];
+                                let count = order['count'];
+                                let address = order['address'];
+                                let number = order['number'];
+
+                                //백틱을 써야 title, author, review라는 3개의 변수를
+                                let tempHtml = `<tr>
+                                                     <td>${name}</td>
+                                                     <td>${count}</td>
+                                                     <td>${address}</td>
+                                                     <td>${number}</td>
+                                                </tr>`;
+                                $('#orders-box').append(tempHtml);
+                                //${}아니다
+                            }
+
+                        } else {
+                            alert("리뷰를 받아오지 못했습니다");
+                        }
+                    }
+                });
+            }
+
+    </script>
+    </head>
+
+    <body>
+
+            <div class="login-title">
+
+            </div>
+
+            <div class="wrap">
+                <p> <h1 style="display:inline">유튜브채널</h1>
+                가격 : 1,000,000원 / 1개</p>
+                <p></p>
+                <p>이상품은 차기 유튜브 성장시장에서 개인에게 꼭 필요한 유튜브 10만 구독자 보유 채널입니다.
+                이 채널을 통해 자신의 포트폴리오를 만들 뿐만 아니라 자신의 사업아이템이 다수의 사람들에게까지
+                유효한지 확인할 수 있습니다. 어서 거래하세요!</p>
+                <p></p>
+                <p></p>
+                <h2>구매 및 보유하기</h2>
+                <p></p>
+                <div>
+                    <p id="dollarRate">"hi"</p>
+                </div>
+
+                <div class="mother">
+                    <span>주문자 성함:</span>
+                    <input class="radius absolute" type="text" placeholder="" id="order-name">
+                </div>
+
+                <p></p>
+
+                <div class="mother">
+                    <span>수량:</span>
+                    <input class="radius absolute" type="number" placeholder="" min="1" max="10" id="order-count"/>
+
+                </div>
+
+                <p></p>
+
+                <div class="mother">
+                    <span>주소:</span>
+                    <input class="radius absolute" type="text" placeholder="" id="order-address">
+                </div>
+
+                <p></p>
+
+                <div class="mother">
+                    <span>전화번호:</span>
+                    <input class="radius absolute" type="text" placeholder="" id="order-phone">
+                </div>
+
+       <div class="buttonstyle" >
+          <button onClick=order() type="button" class="btn btn-primary" >주문하기</button>
+
+
+    </div>
+
+            </div>
+        <div class="reviews">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">성함</th>
+                        <th scope="col">수량</th>
+                        <th scope="col">주소</th>
+                        <th scope="col">전화번호</th>
+                    </tr>
+                    </thead>
+                    <tbody id="orders-box">
+                    <tr>
+                        <td>a</td>
+                        <td>b</td>
+                        <td>c</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+
+
+
+
+    </body>
+
+
+</html>
+
+<!-- <input type="number" placeholder="Multiple of 10" min="1" max="10" id="number"/>
+                <label for="number"></label> -->
